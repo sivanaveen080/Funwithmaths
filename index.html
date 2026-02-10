@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fun Tables Quiz (1 to 20)</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: "Comic Sans MS", system-ui, sans-serif;
+      color: #fff;
+      overflow: hidden;
+      background: linear-gradient(-45deg,#ee7752,#e73c7e,#23a6d5,#23d5ab);
+      background-size: 400% 400%;
+      animation: gradientMove 18s ease infinite;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .math-symbol {
+      position: fixed;
+      font-size: 32px;
+      opacity: 0.18;
+      color: #ffffff;
+      animation: floatUp 14s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(120vh); }
+      100% { transform: translateY(-20vh); }
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.7);
+    }
+
+    #top-bar {
+      position: absolute;
+      top: 8px;
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    #music-toggle {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      padding: 8px 20px;
+      font-size: 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      color: #0b1020;
+      font-weight: bold;
+      background: linear-gradient(135deg,#facc15,#22c55e);
+      box-shadow: 0 0 12px rgba(250,204,21,0.8);
+    }
+
+    #music-toggle.off {
+      background: linear-gradient(135deg,#9ca3af,#6b7280);
+      box-shadow: none;
+      color: #f9fafb;
+    }
+
+    #quiz-box {
+  background: rgba(15, 23, 42, 0.92);
+  border-radius: 18px;
+  padding: 22px 26px 26px;
+  width: 25%;
+  max-width: none;
+  margin: 0 auto;
+  box-shadow:
+    0 0 0 2px rgba(56, 189, 248, 0.3),
+    0 18px 40px rgba(15, 23, 42, 0.9);
+  position: relative;
+  overflow: hidden;
+  animation: cardIn 0.9s ease-out;
+}
+
+
+    @keyframes cardIn {
+      0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* timer bar */
+    #timer-wrapper {
+      width: 100%;
+      height: 10px;
+      background: rgba(148,163,184,0.5);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    #timer-bar {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg,#22c55e,#facc15,#f97316);
+      transform-origin: left center;
+      transform: scaleX(1);
+      transition: transform 0.2s linear;
+    }
+
+    #timer-text {
+      font-size: 12px;
+      text-align: right;
+      color: #e5e7eb;
+      margin-bottom: 6px;
+    }
+
+    #question-count {
+      font-size: 14px;
+      color: #a5b4fc;
+      margin-bottom: 6px;
+    }
+
+    #difficulty { margin-bottom: 8px; font-size: 13px; }
+
+    #difficulty span {
+      margin: 0 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      cursor: pointer;
+      font-size: 12px;
+      user-select: none;
+      transition: all 0.2s;
+    }
+
+    #difficulty span.active {
+      background: linear-gradient(135deg, #22c55e, #a3e635);
+      color: #000;
+      border-color: transparent;
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.7);
+    }
+
+    #question {
+      font-size: 32px;
+      margin-bottom: 10px;
+      color: #fbbf24;
+      text-shadow: 0 0 12px rgba(251,191,36,0.7);
+    }
+
+    #hint {
+      font-size: 13px;
+      color: #c4d3ff;
+      margin-bottom: 6px;
+      min-height: 16px;
+    }
+
+    #answer {
+      font-size: 22px;
+      padding: 6px 8px;
+      width: 120px;
+      text-align: center;
+      border-radius: 10px;
+      border: 2px solid #38bdf8;
+      outline: none;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    #answer:focus {
+      box-shadow: 0 0 12px rgba(56,189,248,0.9);
+      transform: scale(1.03);
+    }
+
+    .btn {
+      margin-top: 12px;
+      margin-right: 6px;
+      padding: 8px 20px;
+      font-size: 15px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      color: #0b1020;
+      font-weight: bold;
+      background-size: 200% 200%;
+      transition: background-position 0.4s, transform 0.15s, box-shadow 0.15s;
+    }
+
+    #check-btn {
+      background-image: linear-gradient(135deg, #06b6d4, #22c55e);
+      box-shadow: 0 0 12px rgba(34,197,94,0.7);
+    }
+
+    #next-btn {
+      background-image: linear-gradient(135deg, #f97316, #facc15);
+      box-shadow: 0 0 12px rgba(249,115,22,0.7);
+      display: none;
+    }
+
+    #restart-btn {
+      background-image: linear-gradient(135deg, #6366f1, #a855f7);
+      box-shadow: 0 0 12px rgba(129,140,248,0.7);
+      display: none;
+    }
+
+    .btn:hover {
+      background-position: 100% 0;
+      transform: translateY(-1px) scale(1.03);
+      box-shadow: 0 0 18px rgba(248,250,252,0.7);
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.97);
+      box-shadow: none;
+    }
+
+    #feedback {
+      margin-top: 12px;
+      min-height: 24px;
+      font-weight: bold;
+      font-size: 17px;
+    }
+
+    #score {
+      margin-top: 6px;
+      font-size: 16px;
+      min-height: 20px;
+    }
+
+    .correct-animate { animation: pop 0.35s ease-out; }
+
+    @keyframes pop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
+
+    /* FULL PAGE celebration */
+    #confetti {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      display: none;
+      z-index: 20;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 16px;
+      opacity: 0.95;
+      animation: fall 1.7s linear forwards;
+    }
+
+    @keyframes fall {
+      0%   { transform: translateY(-20px) rotate(0deg); }
+      100% { transform: translateY(100vh) rotate(480deg); }
+    }
+
+    #finish-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(250, 250, 255, 0.18), transparent 60%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s;
+      z-index: 18;
+    }
+
+    #finish-glow.active { opacity: 1; }
+
+    #big-message {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: 900;
+      text-shadow: 0 0 16px rgba(255,255,255,0.9);
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.5s, transform 0.5s;
+      pointer-events: none;
+      z-index: 21;
+    }
+
+    #big-message.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    @media (max-width: 480px) {
+      #question { font-size: 26px; }
+      h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="top-bar">Fun with Maths</div>
+  <button id="music-toggle" class="off">Music Off</button>
+
+  <!-- floating math symbols -->
+  <div class="math-symbol" style="left:5%; animation-duration:16s;">×</div>
+  <div class="math-symbol" style="left:20%; animation-duration:19s; animation-delay:2s;">+</div>
+  <div class="math-symbol" style="left:40%; animation-duration:15s; animation-delay:4s;">÷</div>
+  <div class="math-symbol" style="left:60%; animation-duration:18s;">−</div>
+  <div class="math-symbol" style="left:80%; animation-duration:20s; animation-delay:3s;">=</div>
+
+  <h1>Tables Quiz</h1>
+
+  <!-- full page celebration -->
+  <div id="confetti"></div>
+  <div id="finish-glow"></div>
+  <div id="big-message"></div>
+
+  <div id="quiz-box">
+    <!-- timer display -->
+    <div id="timer-wrapper">
+      <div id="timer-bar"></div>
+    </div>
+    <div id="timer-text">Time: 15s</div>
+
+    <div id="question-count"></div>
+
+    <div id="difficulty">
+      Difficulty:
+      <span data-level="easy" class="active">Easy</span>
+      <span data-level="medium">Medium</span>
+      <span data-level="hard">Hard</span>
+    </div>
+
+    <div id="question"></div>
+    <div id="hint"></div>
+
+    <input id="answer" type="number" placeholder="Your answer" />
+
+    <div>
+      <button id="check-btn" class="btn">Check</button>
+      <button id="next-btn" class="btn">Next</button>
+      <button id="restart-btn" class="btn">New Test</button>
+    </div>
+
+    <div id="feedback"></div>
+    <div id="score"></div>
+  </div>
+
+  <!-- Sounds -->
+  <!-- Calm, classic game-like background loop -->
+  <audio id="bg-music" loop>
+    <source src="https://soundimage.org/wp-content/uploads/2017/01/Fantasy-Game-Background_Looping.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- correct answer: short claps -->
+ <audio id="correct-sound">
+    <source src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" type="audio/ogg">
+  </audio>
+
+  <!-- wrong answer -->
+  <audio id="wrong-sound">
+    <source src="https://samplelib.com/lib/preview/mp3/sample-9s.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- end animation sound -->
+  <audio id="clap-sound">
+    <source src="https://samplelib.com/lib/preview/mp3/sample-12s.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- ticking for last 5 seconds -->
+  <audio id="tick-sound">
+    <source src="https://samplelib.com/lib/preview/mp3/sample-3s.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const TOTAL_QUESTIONS = 10;
+    const QUESTION_TIME = 15; // seconds per question
+
+    let currentQuestion = 0;
+    let correctCount = 0;
+    let currentAnswer = 0;
+    let difficulty = "easy";
+    let musicOn = false;
+
+    let timeLeft = QUESTION_TIME;
+    let timerInterval = null;
+
+    const questionEl = document.getElementById("question");
+    const questionCountEl = document.getElementById("question-count");
+    const hintEl = document.getElementById("hint");
+    const answerInput = document.getElementById("answer");
+    const checkBtn = document.getElementById("check-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const restartBtn = document.getElementById("restart-btn");
+    const feedbackEl = document.getElementById("feedback");
+    const scoreEl = document.getElementById("score");
+    const confettiBox = document.getElementById("confetti");
+    const finishGlow = document.getElementById("finish-glow");
+    const bigMessage = document.getElementById("big-message");
+    const difficultySpans = document.querySelectorAll("#difficulty span");
+    const musicToggleBtn = document.getElementById("music-toggle");
+
+    const timerBar = document.getElementById("timer-bar");
+    const timerText = document.getElementById("timer-text");
+
+    const bgMusic = document.getElementById("bg-music");
+    const correctSound = document.getElementById("correct-sound");
+    const wrongSound = document.getElementById("wrong-sound");
+    const clapSound = document.getElementById("clap-sound");
+    const tickSound = document.getElementById("tick-sound");
+
+    // Softer background so effects are clear
+    bgMusic.volume = 0.25;
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function chooseNumbersByDifficulty() {
+      let a, b;
+      if (difficulty === "easy") {
+        a = randomInt(1, 10);
+        b = randomInt(1, 10);
+      } else if (difficulty === "medium") {
+        a = randomInt(2, 15);
+        b = randomInt(2, 12);
+      } else {
+        a = randomInt(5, 20);
+        b = randomInt(4, 20);
+      }
+      return [a, b];
+    }
+
+    function buildHint(a, b) {
+      if (difficulty === "easy") {
+        return "Tip: Count by " + a + " or " + b + ".";
+      } else if (difficulty === "medium") {
+        return "Think: " + a + " × " + b + " is " +
+          a + " × (" + (b - 1) + " + 1).";
+      } else {
+        return "Try breaking it: (" + a + " × 10) + (" + a + " × " + (b - 10) + ").";
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timeLeft = QUESTION_TIME;
+      timerBar.style.transform = "scaleX(1)";
+      timerText.textContent = "Time: " + timeLeft + "s";
+    }
+
+    function startTimer() {
+      resetTimer();
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft < 0) {
+          clearInterval(timerInterval);
+          handleTimeUp();
+          return;
+        }
+
+        const scale = timeLeft / QUESTION_TIME;
+        timerBar.style.transform = "scaleX(" + scale + ")";
+        timerText.textContent = "Time: " + timeLeft + "s";
+
+        if (timeLeft <= 5 && timeLeft > 0 && musicOn) {
+          tickSound.currentTime = 0;
+          tickSound.play();
+        }
+      }, 1000);
+    }
+
+    function handleTimeUp() {
+      if (answerInput.disabled) return;
+
+      feedbackEl.textContent = "Time up! Correct answer was " + currentAnswer;
+      feedbackEl.style.color = "#f97373";
+      if (musicOn) {
+        wrongSound.currentTime = 0;
+        wrongSound.play();
+      }
+
+      answerInput.disabled = true;
+      checkBtn.style.display = "none";
+
+      if (currentQuestion < TOTAL_QUESTIONS) {
+        nextBtn.style.display = "inline-block";
+      } else {
+        endQuiz();
+      }
+    }
+
+    function newQuestion() {
+      currentQuestion++;
+      if (currentQuestion > TOTAL_QUESTIONS) {
+        endQuiz();
+        return;
+      }
+
+      const [a, b] = chooseNumbersByDifficulty();
+      currentAnswer = a * b;
+
+      questionEl.textContent = a + " × " + b + " = ?";
+      questionCountEl.textContent = "Question " + currentQuestion + " of " + TOTAL_QUESTIONS;
+      hintEl.textContent = buildHint(a, b);
+
+      feedbackEl.textContent = "";
+      feedbackEl.classList.remove("correct-animate");
+      answerInput.value = "";
+      answerInput.disabled = false;
+      answerInput.focus();
+
+      checkBtn.style.display = "inline-block";
+      nextBtn.style.display = "none";
+
+      startTimer();
+    }
+
+    function checkAnswer() {
+      if (answerInput.disabled) return;
+      const trimmed = answerInput.value.trim();
+      if (trimmed === "") {
+        feedbackEl.textContent = "Please type your answer.";
+        feedbackEl.style.color = "#e5e7eb";
+        return;
+      }
+
+      clearInterval(timerInterval);
+
+      const userValue = Number(trimmed);
+
+      if (userValue === currentAnswer) {
+        correctCount++;
+        feedbackEl.textContent = "Super! Correct answer ✓";
+        feedbackEl.style.color = "#4ade80";
+        feedbackEl.classList.add("correct-animate");
+        if (musicOn) {
+          correctSound.currentTime = 0;
+          correctSound.play();
+        }
+      } else {
+        feedbackEl.textContent = "Not this time. Correct answer is " + currentAnswer;
+        feedbackEl.style.color = "#f97373";
+        if (musicOn) {
+          wrongSound.currentTime = 0;
+          wrongSound.play();
+        }
+      }
+
+      answerInput.disabled = true;
+      checkBtn.style.display = "none";
+
+      if (currentQuestion < TOTAL_QUESTIONS) {
+        nextBtn.style.display = "inline-block";
+      } else {
+        endQuiz();
+      }
+    }
+
+    function endQuiz() {
+      clearInterval(timerInterval);
+
+      const percent = Math.round((correctCount / TOTAL_QUESTIONS) * 100);
+
+      questionEl.textContent = "Test Finished!";
+      questionCountEl.textContent = "";
+      hintEl.textContent = "";
+      feedbackEl.textContent =
+        "You got " + correctCount + " out of " + TOTAL_QUESTIONS +
+        " correct (" + percent + "%).";
+      feedbackEl.style.color = "#e5e7eb";
+      timerText.textContent = "";
+
+      if (percent >= 80) {
+        scoreEl.textContent = "Awesome! You are a tables champion!";
+      } else if (percent >= 50) {
+        scoreEl.textContent = "Good start! A little more practice will make you a star.";
+      } else {
+        scoreEl.textContent = "Every master was once a beginner. Try again and beat your own score!";
+      }
+
+      answerInput.disabled = true;
+      checkBtn.style.display = "none";
+      nextBtn.style.display = "none";
+      restartBtn.style.display = "inline-block";
+
+      launchBigCelebration(percent);
+    }
+
+    function restartQuiz() {
+      clearInterval(timerInterval);
+      currentQuestion = 0;
+      correctCount = 0;
+      scoreEl.textContent = "";
+      feedbackEl.textContent = "";
+      bigMessage.classList.remove("show");
+      finishGlow.classList.remove("active");
+      confettiBox.innerHTML = "";
+      confettiBox.style.display = "none";
+      restartBtn.style.display = "none";
+      timerText.textContent = "Time: " + QUESTION_TIME + "s";
+      timerBar.style.transform = "scaleX(1)";
+      newQuestion();
+    }
+
+    function launchBigCelebration(percent) {
+      if (percent >= 80) {
+        finishGlow.classList.add("active");
+        bigMessage.textContent = "👏👏 Great Job! 👏👏";
+        bigMessage.classList.add("show");
+
+        if (musicOn) {
+          clapSound.currentTime = 0;
+          clapSound.play();
+        }
+
+        confettiBox.innerHTML = "";
+        confettiBox.style.display = "block";
+
+        const colors = ["#f97316", "#facc15", "#22c55e", "#38bdf8", "#a855f7"];
+        for (let i = 0; i < 80; i++) {
+          const piece = document.createElement("div");
+          piece.classList.add("confetti-piece");
+          piece.style.left = Math.random() * 100 + "%";
+          piece.style.backgroundColor =
+            colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDelay = (Math.random() * 1) + "s";
+          confettiBox.appendChild(piece);
+        }
+
+        setTimeout(() => {
+          bigMessage.classList.remove("show");
+          finishGlow.classList.remove("active");
+          confettiBox.style.display = "none";
+          confettiBox.innerHTML = "";
+        }, 3000);
+      } else if (musicOn) {
+        wrongSound.currentTime = 0;
+        wrongSound.play();
+      }
+    }
+
+    difficultySpans.forEach(span => {
+      span.addEventListener("click", () => {
+        difficultySpans.forEach(s => s.classList.remove("active"));
+        span.classList.add("active");
+        difficulty = span.dataset.level;
+
+        restartQuiz();
+      });
+    });
+
+    checkBtn.addEventListener("click", checkAnswer);
+    nextBtn.addEventListener("click", newQuestion);
+    restartBtn.addEventListener("click", restartQuiz);
+
+    answerInput.addEventListener("keyup", function (e) {
+      if (e.key === "Enter" && checkBtn.style.display !== "none") {
+        checkAnswer();
+      }
+    });
+
+    // music toggle – user gesture unlocks audio
+    musicToggleBtn.addEventListener("click", () => {
+      if (!musicOn) {
+        bgMusic.currentTime = 0;
+        bgMusic.play().catch(() => {});
+        musicOn = true;
+        musicToggleBtn.textContent = "Music On";
+        musicToggleBtn.classList.remove("off");
+      } else {
+        bgMusic.pause();
+        musicOn = false;
+        musicToggleBtn.textContent = "Music Off";
+        musicToggleBtn.classList.add("off");
+      }
+    });
+
+    newQuestion();
+  </script>
+</body>
+</html>
